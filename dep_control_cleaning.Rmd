@@ -1,0 +1,82 @@
+---
+title: "bank_characteristic_cleaning"
+output: html_document
+---
+
+```{r}
+setwd("C:/Users/Admin/Desktop/Desktop/data/data/dep_control_cleaning")
+ROAE <- read.csv("135_CCB_ROAE_2008-2016.csv")
+ROAA <- read.csv("135_CCB_ROAA_2008-2016.csv")
+columnname <- c("Security_num","Security_name","2008","2009","2010","2011","2012","2013","2014","2015","2016")
+
+ROAE <- ROAE[-1,]
+colnames (ROAE) <- columnname
+colnames (ROAA) <- columnname
+ROAE <- ROAE[,-2]
+ROAA <- ROAA[,-2]
+
+ROAE
+ROAA
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+ROAE <- ROAE %>% gather(key = "Year", value = ROAE,-"Security_num")
+ROAA <- gather(ROAA,key = "Year", value = ROAA,-"Security_num")
+ROAE
+ROAA
+profitability <- merge.data.frame(ROAA,ROAE,by=c("Security_num","Year"))
+profitability
+
+```
+```{r}
+equity <- read.csv("CCB_capitalization_equity_1.csv",header = FALSE)
+asset <- read.csv("CCB_size_totalasset.csv")
+diversification <- read.csv("CCB_diversification_non_interest_income.csv",header = FALSE)
+diversification <-diversification[-1,]
+
+#equity <-equity[,-2]
+#asset <-asset[,-2]
+#diversification <-diversification[,-2]
+
+columnname <- c("Security_num","Security_name","2008","2009","2010","2011","2012","2013","2014","2015","2016")
+colnames (equity) <- columnname
+colnames (asset) <- columnname
+colnames (diversification) <- columnname
+
+equity <- equity[,-2]
+asset <- asset[,-2]
+diversification <- diversification[,-2]
+
+equity <- gather(equity,key = "Year", value = equity,-"Security_num")
+asset <- gather(asset,key = "Year", value = asset,-"Security_num")
+diversification <- gather(diversification,key = "Year", value = diversification,-"Security_num")
+
+equity
+asset
+diversification
+
+bank_cha <- merge.data.frame(equity,asset,by=c("Security_num","Year"))
+bank_cha <- merge.data.frame(bank_cha,diversification,by=c("Security_num","Year"))
+bank_cha
+```
+```{r}
+bank_cha <- merge.data.frame(profitability,bank_cha,by=c("Security_num","Year"))
+bank_cha
+```
+```{r}
+write.csv(bank_cha,file="bank_cha.csv")
+
+```
+
+employ_shock
+```{r}
+employ_shock <- read.csv("Bartik_shock_employ.csv")
+head(employ_shock)
+gath_employ_shock <- gather(employ_shock,key = "year", value = employ_shock,-"城市")
+head(gath_employ_shock)
+write.csv(gath_employ_shock,file="gath_employ_shock.csv")
+
+```
+
